@@ -1,0 +1,63 @@
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class Transaction {
+    final private String fromIBAN, toIBAN;
+    final private double amount;
+    final private String description;
+    final private Date creationDate;
+
+    public Transaction(String fromIBAN, String toIBAN, double amount, String description) throws Exception {
+
+        if(amount <= 0)
+            throw new Exception("The given amount is too low!");
+        Account fromAccount = getAccountByIBAN(fromIBAN);
+        this.fromIBAN = fromIBAN;
+        this.toIBAN = toIBAN;
+        this.amount = amount;
+        this.description = description;
+        this.creationDate = new Date();
+    }
+
+    public Transaction(String fromIBAN, String toIBAN, double amount, String description, Date creationDate) throws Exception {
+        this.fromIBAN = fromIBAN;
+        this.toIBAN = toIBAN;
+        this.amount = amount;
+        this.description = description;
+        this.creationDate = creationDate;
+        // done in the past technically, we don't update balances/amounts in this case assuming it already happened
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "from=" + fromIBAN +
+                ", to=" + toIBAN +
+                ", amount=" + amount +
+                ", description='" + description + '\'' +
+                ", creationDate=" + (new SimpleDateFormat("yyyy-MM-dd+HH:mm:ss")).format(creationDate) +
+                '}';
+    }
+
+
+
+    public String getFromIBAN() {
+        return fromIBAN;
+    }
+
+    public String getToIBAN() {
+        return toIBAN;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+}

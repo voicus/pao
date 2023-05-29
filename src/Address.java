@@ -36,13 +36,6 @@ public class Address {
                 '}';
     }
 
-    public String toCSV() {
-        return street +
-                "," + city +
-                "," + county+
-                "," + postalCode;
-    }
-
     public void setStreet(String street) {
         this.street = street;
     }

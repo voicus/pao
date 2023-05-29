@@ -11,7 +11,6 @@ public class Transaction {
 
         if(amount <= 0)
             throw new Exception("The given amount is too low!");
-        Account fromAccount = getAccountByIBAN(fromIBAN);
         this.fromIBAN = fromIBAN;
         this.toIBAN = toIBAN;
         this.amount = amount;
@@ -25,7 +24,6 @@ public class Transaction {
         this.amount = amount;
         this.description = description;
         this.creationDate = creationDate;
-        // done in the past technically, we don't update balances/amounts in this case assuming it already happened
     }
 
     @Override

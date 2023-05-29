@@ -9,18 +9,9 @@ public class Account implements Comparator<Transaction> {
 
     private static int uniqueId = 0;
 
-    public static void incrementUniqueId(int inc) {
-        Account.uniqueId += inc;
-    }
-
-    public Account createAccount(String name, int customerId){
-        return new Account(name, customerId, uniqueId++);
-    }
     protected List<Card> cards = new ArrayList<>();
 
-    private final CardFactory cardFactory = new CardFactory();
-
-    public Account(String IBAN, String swift, double amount, String name, int customerId){
+    public Account(String IBAN, String swift, double amount, String name, int customerId) {
         this.IBAN = IBAN;
         this.swift = swift;
         this.amount = amount;
@@ -28,8 +19,8 @@ public class Account implements Comparator<Transaction> {
         this.customerId = customerId;
     }
 
-    public Account(String name, int customerId, int uniqueId) {
-        this.IBAN = this.generateIBAN(uniqueId);
+    public Account(String name, int customerId) {
+        this.IBAN = this.generateIBAN(++uniqueId);
         this.swift = this.generateSwift();
         this.amount = 0;
         this.name = name;
@@ -52,7 +43,7 @@ public class Account implements Comparator<Transaction> {
         return transactions;
     }
     public void addCard(String name){
-        Card newCard = cardFactory.addCard(this.IBAN, name);
+        Card newCard = new Card(this.IBAN, name);
         cards.add(newCard);
     }
 
@@ -108,7 +99,7 @@ public class Account implements Comparator<Transaction> {
 
     private String generateSwift() {
         String bank = "BRDE";
-        String country = "RO"
+        String country = "RO";
         return bank + country + "BUXXX";
     }
 }

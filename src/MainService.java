@@ -1,4 +1,6 @@
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class MainService {
@@ -10,8 +12,6 @@ public class MainService {
     private List<Transaction> transactions = new ArrayList<>();
 
     private final Map<String, Account> accountsMap = new HashMap<>();
-    private final CustomerFactory customerFactory = new CustomerFactory();
-    private final AccountFactory accountFactory = new AccountFactory();
 
     /// Getters
     public List<Customer> getCustomers() {
@@ -21,7 +21,7 @@ public class MainService {
         return accounts;
     }
     public List<StudentAccount> getStudentAccounts() {
-        return savingsAccounts;
+        return studentAccounts;
     }
     public List<Transaction> getTransactions() {
         return transactions;
@@ -34,18 +34,12 @@ public class MainService {
     public void setAccounts(List<Account> accounts) {
         this.accounts = accounts;
     }
-    public void setSavingsAccounts(List<SavingsAccount> savingsAccounts) {
-        this.savingsAccounts = savingsAccounts;
-    }
     public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
     }
+  public void setStudentAccounts(List<StudentAccount> studentAccounts) { this.studentAccounts = studentAccounts;}
 
-
-
-    public MainService(){ }
-
-    /// Utils
+  public MainService(){ }
     private Customer getCustomerFromInput(Scanner in) throws Exception{
         if(this.customers.size()==0)
             throw new Exception("No customers added!");
@@ -63,23 +57,17 @@ public class MainService {
 
     /// Actions
     public void createCustomer(Scanner in) throws ParseException {
-        Customer newCustomer = customerFactory.createCustomer(in);
+        Customer newCustomer = new Customer(in);
         this.customers.add(newCustomer);
-        var newAccount = accountFactory.createAccount(newCustomer.getFirstName() + " " + newCustomer.getLastName(), newCustomer.getCustomerId());
+        var newAccount = new Account(newCustomer.getFirstName() + " " + newCustomer.getLastName(), newCustomer.getCustomerId());
         this.accounts.add(newAccount);
+        accountsMap.put(newAccount.getIBAN(), newAccount);
         System.out.println("Customer created");
     }
 
     public void getCustomer(Scanner in) throws Exception {
         var customer = this.getCustomerFromInput(in);
         System.out.println(customer.toString());
-    }
-
-    public Account getAccountByIBAN(int IBAN) throws Exception {
-        if(!this.accountsMap.containsKey(IBAN))
-            throw new Exception("Invalid IBAN number!");
-        var account = accountsMap.get(IBAN);
-        return account;
     }
 
     private Account getAccountFromInput(Scanner in, Customer customer) throws Exception {
@@ -112,13 +100,27 @@ public class MainService {
 
     public void createCustomerAccount(Scanner in) throws Exception {
         var customer = this.getCustomerFromInput(in);
+        if(!(LocalDate.now().getYear() - customer.getBirthDate().getYear() > 17))
+            throw new Exception("The customer is not an adult. Try a student account.");
         System.out.println("Account name: ");
         String name = in.nextLine();
-        Account newAccount = this.accountFactory.createAccount(name, customer.getCustomerId());
+        Account newAccount = new Account(name, customer.getCustomerId());
         accounts.add(newAccount);
         accountsMap.put(newAccount.getIBAN(), newAccount);
         System.out.println("Account created");
     }
+
+  public void createStudentAccount(Scanner in) throws Exception {
+    var customer = this.getCustomerFromInput(in);
+    if(!(14 <= LocalDate.now().getYear() - customer.getBirthDate().getYear() && LocalDate.now().getYear() - customer.getBirthDate().getYear() < 18))
+      throw new Exception("The customer is not a student!");
+    System.out.println("Account name: ");
+    String name = in.nextLine();
+    StudentAccount newAccount = new StudentAccount(name, customer.getCustomerId());
+    studentAccounts.add(newAccount);
+    accountsMap.put(newAccount.getIBAN(), newAccount);
+    System.out.println("Account created");
+  }
 
     public void createCustomerCard(Scanner in) throws Exception {
         var customer = this.getCustomerFromInput(in);
@@ -133,7 +135,13 @@ public class MainService {
         System.out.println("How much do you want to load into your account?: ");
         int amount = Integer.parseInt(in.nextLine());
         var customerAccounts = customer.filterAccounts(this.accounts);
-        customerAccounts.get(0).setAmount(amount);
+        int accountId = 0;
+        if(customerAccounts.size() > 1){
+          System.out.println("Choose an account id: ");
+          int x = Integer.parseInt(in.nextLine());
+          accountId = x < customerAccounts.size() ? x : 0;
+        }
+        customerAccounts.get(accountId).setAmount(amount);
         System.out.println("The account has been loaded!");
     }
 
@@ -179,8 +187,6 @@ public class MainService {
             throw new Exception("The account savings are not empty!");
         this.accountsMap.remove(account.getIBAN());
         this.accounts.remove(account);
-        if(this.accountDatabase!=null)
-            this.accountDatabase.delete(account);
         System.out.println("Account closed!");
     }
 

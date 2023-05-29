@@ -1,15 +1,19 @@
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Customer {
+    private static int lastCustomerId = 0;
     private final int customerId;
     private String firstName, lastName, CNP;
-    private Date birthDate;
+    private LocalDate birthDate;
     private String email, phone;
     private Address address;
 
-    public Customer(int customerId, String firstName, String lastName, String CNP, Date birthDate, String email, String phone, Address address) {
+    public Customer(int customerId, String firstName, String lastName, String CNP, LocalDate birthDate, String email, String phone, Address address) {
         this.customerId = customerId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -20,8 +24,8 @@ public class Customer {
         this.address = address;
     }
 
-    public Customer(int customerId, Scanner in) throws ParseException {
-        this.customerId = customerId;
+    public Customer(Scanner in) throws ParseException {
+        this.customerId = ++lastCustomerId;
         this.read(in);
     }
 
@@ -34,7 +38,8 @@ public class Customer {
         System.out.println("CNP: ");
         this.CNP = in.nextLine();
         System.out.println("Birth Date (yyyy-MM-dd): ");
-        this.birthDate = new SimpleDateFormat("yyyy-MM-dd").parse(in.nextLine());
+        String dateString = in.nextLine();
+        this.birthDate = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         System.out.println("Email: ");
         this.email = in.nextLine();
         System.out.println("Phone: ");
@@ -74,22 +79,11 @@ public class Customer {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", CNP='" + CNP + '\'' +
-                ", birthDate=" + (new SimpleDateFormat("yyyy-MM-dd")).format(birthDate) +
+                ", birthDate=" + birthDate +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", address=" + address.toString() +
                 '}';
-    }
-
-    public String toCSV(){
-        return customerId +
-                "," + firstName +
-                "," + lastName +
-                "," + CNP +
-                "," + (new SimpleDateFormat("yyyy-MM-dd")).format(birthDate) +
-                "," + email +
-                "," + phone +
-                "," + address.toCSV();
     }
 
 
@@ -121,11 +115,11 @@ public class Customer {
         this.CNP = CNP;
     }
 
-    public Date getBirthDate() {
+    public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Date birthDate) {
+    public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
 
